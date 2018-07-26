@@ -100,7 +100,7 @@ function index_latest_downtime(latestDownTimeStr) {
 
 function show_chart(monitors_id, i) {
     
-    if(config_show_chart == false){
+    if(config_show_chart === false){
         return;
     }
     if(config_ajax_mode==1){
@@ -156,6 +156,7 @@ function show_chart(monitors_id, i) {
 
 function load(clear_table) {
     $(".seconds").html("ing");
+    $(".fa-refresh").addClass('refresh_animation');
     if(config_ajax_mode==1){
         var get_url = "core.php?key="+config_status_key;
     }else if(config_ajax_mode==2){
@@ -261,7 +262,7 @@ function load(clear_table) {
                     '</tr></thead><tbody><tr>' + last_seven_day_ratio_html +
                     '</tr></tbody></table><table class="table table-borderless table-sm"><thead><tr><th scope="col">事件</th><th scope="col">时间</th><th scope="col">原因</th><th scope="col">持续时间</th></tr></thead><tbody>' +
                     event_list + '</tbody></table>');
-                if ($('#more_information_' + i).css("display")!=="none" && config_show_chart == true){
+                if ($('#more_information_' + i).css("display")!=="none" && config_show_chart === true){
                     show_chart(data.psp.monitors[i].id, i);
                 }
 
@@ -297,12 +298,13 @@ function load(clear_table) {
                 setTimeout('$(".warning-bg").removeClass("animated flash")', 1000);
             }
 
-            if(config_show_chart == false){
+            if(config_show_chart === false){
                 $('.div_chart').hide();
             }
             $("#loading").hide();
             $("#all_card").slideDown(700);
             $(".seconds").html( config_auto_refresh_seconds + 's');
+            $(".fa-refresh").removeClass('refresh_animation');
         }
 
 

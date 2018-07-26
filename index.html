@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html class="full-height">
+    
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -130,14 +131,49 @@
         .seconds {
             font-size: 1rem;
         }
-        /*
-        .div_chart{
-            transition: height 2s;
-            -moz-transition: height 2s;	
-            -webkit-transition: height 2s;	
-            -o-transition: height 2s;
+        .refresh_animation{
+            animation:refresh_turn 2.5s linear infinite;
+            -moz-animation:refresh_turn 2.5s linear infinite;
+            -webkit-animation:refresh_turn 2.5s linear infinite; 
+            -o-animation:refresh_turn 2.5s linear infinite;
         }
-        */
+        @keyframes refresh_turn {
+            from {
+                transform:rotate(0deg);
+                -ms-transform:rotate(0deg);
+            }
+            to {
+                transform:rotate(360deg);
+                -ms-transform:rotate(360deg); 
+            }
+        }
+        @-moz-keyframes refresh_turn
+        {
+            from {
+                -moz-transform:rotate(0deg);
+            }
+            to {
+                -moz-transform:rotate(360deg);
+            }
+        }
+        @-webkit-keyframes refresh_turn
+        {
+            from {
+                -webkit-transform:rotate(0deg); 
+            }
+            to {
+                -webkit-transform:rotate(360deg); 
+            }
+        }
+        @-o-keyframes refresh_turn
+        {
+            from {
+                -o-transform:rotate(0deg); 
+            }
+            to {
+                -o-transform:rotate(360deg); 
+            }
+        }
         </style>
     </head>
     
@@ -147,7 +183,7 @@
                  <h2 class="h1 mb-4"><span id="title_big"></span>&nbsp;&nbsp;<span style="font-size:1.7rem" id="title_small"></span></h2>
 
                 <!--<div></div>-->
-                <div class="spinner" id="loading" >
+                <div class="spinner" id="loading">
                     <div class="double-bounce1"></div>
                     <div class="double-bounce2"></div>
                 </div>
@@ -236,12 +272,14 @@
                     <!-- /详情框架 -->
                     <!-- 页底版权 -->
                     <!-- 您可以添加自己站点的相关信息，但还请您请保留已有版权信息 -->
-                    <footer id="main-footer" style="text-align:right;">Powered by <a href="http://www.freejishu.com">freejishu</a>&nbsp;&nbsp;Data&nbsp;by&nbsp; 
+                    <footer id="main-footer" style="text-align:right;">Powered by <a href="http://www.freejishu.com">freejishu</a>&nbsp;&nbsp;Data&nbsp;by&nbsp;
                         <a href="https://uptimerobot.com">
                             <img src="./img/uptime-logo.png" alt="Uptime Robot Logo">
                         </a>
                     </footer>
-                    <br /><br /><br />
+                    <br />
+                    <br />
+                    <br />
                     <!-- /页底版权 -->
                 </div>
             </div>
@@ -252,28 +290,23 @@
         <script type="text/javascript" src="js/mdb.min.js"></script>
         <script type="text/javascript" src="js/core.js"></script>
         <script>
-        //喜闻乐见的配置
-        var config_title = "状态监控",
-            config_title_english = "StatusLive",
-            config_warning_flash = false,
-            config_status_key = "KQLq0Cy2M";
-            config_ajax_mode = 1;
-            config_ajax_proxy_domain = "";
-            config_show_chart = false;
-            config_auto_refresh_seconds = 60;
-            //config[title][english] = "LiveStatus";
+        //喜闻乐见的配置区域
+        var config_title = "状态监控",//主标题
+            config_title_english = "StatusLive",//副标题（英文标题）
+            config_warning_flash = false,//warning区域是否添加特效（闪一下）
+            config_status_key = "KQLq0Cy2M";//你的statuspageskey
+            config_ajax_mode = 1;//ajax模式 1为依赖core.php模式 2为反代模式
+            config_ajax_proxy_domain = ""; //当config_ajax_mode设定为2时，在此填写反代域名（要有http(s)://，末尾不带斜杠）
+            config_show_chart = true;//是否展示图标
+            config_auto_refresh_seconds = 60;//数据刷新时间，单位为秒，建议不低于60
             
         wow = new WOW().init();
-        
-        window.onload = function(){
+
+        window.onload = function () {
             set_page_info();
             load(0);
             t = setTimeout("timedCount()", 1000);
         }
-        
-        
-
-        
         </script>
     </body>
 
