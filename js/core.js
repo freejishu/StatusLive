@@ -104,9 +104,9 @@ function show_chart(monitors_id, i) {
         return;
     }
     if(config_ajax_mode==1){
-        var get_url = "core.php?t=1&id=" + monitors_id + "&key=" + config_status_key;
+        var get_url = "core.php?t=1&id=" + monitors_id + "&key=" + config_status_key + "&t=" + Math.random();
     }else if (config_ajax_mode==2){
-        var get_url = config_ajax_proxy_domain + "/api/status-page/"+config_status_key+"/"+monitors_id;
+        var get_url = config_ajax_proxy_domain + "/api/status-page/"+config_status_key+"/"+monitors_id + "?t=" + Math.random();
     }
     
     $.ajax({
@@ -158,9 +158,9 @@ function load(clear_table) {
     $(".seconds").html("ing");
     $(".fa-refresh").addClass('refresh_animation');
     if(config_ajax_mode==1){
-        var get_url = "core.php?key="+config_status_key;
+        var get_url = "core.php?key="+config_status_key + "&t=" + Math.random();
     }else if(config_ajax_mode==2){
-        var get_url = config_ajax_proxy_domain + "/api/status-page/"+config_status_key+"/1?sort=1";
+        var get_url = config_ajax_proxy_domain + "/api/status-page/"+config_status_key+"/1?sort=1&t=" + Math.random();;
     }
     $.ajax({
         url: get_url,
