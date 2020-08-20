@@ -84,17 +84,18 @@ function event_list_reasonStr(reasonStr, if_or_not_start, statusStr) {
 
 function event_list_durationStr(durationStr) {
     durationStr = durationStr.replace("hrs,", "小时");
-    durationStr = durationStr.replace("mins.", "分钟");
+    durationStr = durationStr.replace("mins", "分钟");
     return durationStr;
 }
 
 function index_latest_downtime(latestDownTimeStr) {
-    latestDownTimeStr = latestDownTimeStr.replace("It was recorded (for the monitor", "节点");
+    latestDownTimeStr = latestDownTimeStr.replace("It was recorded (for the monitor", "监控点");
     latestDownTimeStr = latestDownTimeStr.replace(") on", " 于");
     latestDownTimeStr = latestDownTimeStr.replace("and the downtime lasted for", "发生故障，持续时间");
     latestDownTimeStr = latestDownTimeStr.replace("hrs,", "小时");
     latestDownTimeStr = latestDownTimeStr.replace("mins.", "分钟。");
     latestDownTimeStr = latestDownTimeStr.replace("No downtime recorded.", "还未发生故障。");
+    
     return latestDownTimeStr;
 }
 
@@ -106,7 +107,7 @@ function show_chart(monitors_id, i) {
     if(config_ajax_mode==1){
         var get_url = "core.php?t=1&id=" + monitors_id + "&key=" + config_status_key + "&r=" + Math.random();
     }else if (config_ajax_mode==2){
-        var get_url = config_ajax_proxy_domain + "/api/status-page/"+config_status_key+"/"+monitors_id + "?r=" + Math.random();
+        var get_url = config_ajax_proxy_domain + "/api/getMonitor/"+config_status_key+"?m="+monitors_id + "&_=" + Math.random();
     }
     
     $.ajax({
@@ -116,11 +117,23 @@ function show_chart(monitors_id, i) {
         success: function(data) {
             $("#div_chart_"+i).html('<br /><br /><canvas id="lag_show_chart_' + i + '"></canvas><br />');
             
+            var event_list='';
+            
+            for (var ii = 0; ii < data.monitor.logs.length; ii++) {
+                    var if_or_not_start = 0;
+                    if (ii == 0) {
+                        if_or_not_start = 1;
+                    }
+                    event_list = "<tr><td>" + event_list_statusStr(data.monitor.logs[ii].label, if_or_not_start) + "</td><td>" + data.monitor.logs[ii].date +"</td><td>" + event_list_reasonStr(data.monitor.logs[ii].reason, if_or_not_start) + "</td><td>" + event_list_durationStr(data.monitor.logs[ii].duration) + "</td></tr>" + event_list;
+                }
+                
+                $("#logs_"+data.monitor.monitorId).html(event_list);
+                
             var datetime = new Array(0)
             var value = new Array(0)
-            for (var ii = 0; ii < data.psp.monitors[0].response_times.length; ii++) {
-                datetime.push(formatTime(data.psp.monitors[0].response_times[ii].datetime*1000));
-                value.push(data.psp.monitors[0].response_times[ii].value)
+            for (var ii = 0; ii < data.monitor.responseTimes.length; ii++) {
+                datetime.push(data.monitor.responseTimes[ii].datetime);
+                value.push(data.monitor.responseTimes[ii].value)
             }
             datetime.reverse();
             value.reverse();
@@ -160,7 +173,7 @@ function load(clear_table) {
     if(config_ajax_mode==1){
         var get_url = "core.php?key="+config_status_key + "&r=" + Math.random();
     }else if(config_ajax_mode==2){
-        var get_url = config_ajax_proxy_domain + "/api/status-page/"+config_status_key+"/1?sort=1&r=" + Math.random();;
+        var get_url = config_ajax_proxy_domain + "/api/getMonitorList/"+config_status_key+"?page=1&_=" + Math.random();
     }
     $.ajax({
         url: get_url,
@@ -176,11 +189,12 @@ function load(clear_table) {
                 second = date.getSeconds(),
                 time_text = year + '年' + month + '月' + day + '日 ' + time_good_look(hour) + ':' + time_good_look(
                     minute) + ':' + time_good_look(second);
+                    //console.log(data.psp.statistics)
 
             $("#report_time").html(time_text);
-            $("#up_server").html(data.psp.pspStats.counts.up);
-            $("#down_server").html(data.psp.pspStats.counts.down);
-            $("#paused_server").html(data.psp.pspStats.counts.paused);
+            $("#up_server").html(data.statistics.counts.up);
+            $("#down_server").html(data.statistics.counts.down);
+            $("#paused_server").html(data.statistics.counts.paused);
             if (clear_table == 1) {
                 $("#website_list").html("");
                 $("#datacenter_list").html("");
@@ -191,13 +205,13 @@ function load(clear_table) {
                 data_table = data_table + '<td scope="col">' + data.days[i] + "</td>";
             }
             //console.log(data_table);
-            $("#latest_downtime").html("最近一次故障：" + index_latest_downtime(data.psp.latestDownTimeStr));
+            $("#latest_downtime").html("最近一次故障：" + index_latest_downtime(data.statistics.latest_downtime));
 
-            for (var i = 0; i < data.psp.monitorCount; i++) {
-                if (data.psp.monitors[i].typeStr == "http") {
+            for (var i = 0; i < data.psp.totalMonitors; i++) {
+                if (data.psp.monitors[i].type == "http(s)") {
                     var table_key = "website_list",
                         tag_website = 1;
-                } else if (data.psp.monitors[i].typeStr == "ping") {
+                } else if (data.psp.monitors[i].type == "ping") {
                     var table_key = "datacenter_list",
                         tag_datacenter = 1;
                 } else {
@@ -207,31 +221,17 @@ function load(clear_table) {
 
                 var last_seven_day_ratio = "",
                     last_seven_day_ratio_html = "";
-                for (var ii = 0; ii < data.psp.monitors[i].customuptimeranges.length; ii++) {
-                    last_seven_day_ratio = last_seven_day_ratio + '<span class="table-status-item ' + data.psp
-                        .monitors[
-                        i].customuptimeranges[ii].label + '-bg">' + data.psp.monitors[i].customuptimeranges[
-                        ii]
-                        .ratio +
-                        '</span>';
-                    last_seven_day_ratio_html = last_seven_day_ratio_html +
-                        '<td><span class="table-status-item ' + data.psp
-                        .monitors[
-                        i].customuptimeranges[ii].label + '-bg">' + data.psp.monitors[i].customuptimeranges[
-                        ii]
-                        .ratio +
-                        '</span></td>';
+                for (var ii = 0; ii < data.psp.monitors[i].dailyRatios.length; ii++) {
+                    last_seven_day_ratio = last_seven_day_ratio + '<span class="table-status-item ' + data.psp.monitors[i].dailyRatios[ii].label + '-bg">' + data.psp.monitors[i].dailyRatios[ii].ratio +'</span>';
+                    last_seven_day_ratio_html = last_seven_day_ratio_html + '<td><span class="table-status-item ' + data.psp.monitors[i].dailyRatios[ii].label + '-bg">' + data.psp.monitors[i].dailyRatios[ii].ratio + '</span></td>';
                 }
 
                 $("#" + table_key).html($("#" + table_key).html() +
                     '<tr><th scope="row"><span class="bullet ' +
-                    data.psp.monitors[i].statusLabel + '-bg"></span></th><td class="td_new_font_size ' +
-                    data.psp
-                    .monitors[
-                    i].oneWeekRange.label + '">' + data.psp.monitors[i].oneWeekRange.ratio +
+                    data.psp.monitors[i].weeklyRatio.label + '-bg"></span></th><td class="td_new_font_size ' +data.psp.monitors[i].weeklyRatio.label + '">' + data.psp.monitors[i].weeklyRatio.ratio +
                     '%</td><td class="td_new_font_size show_more_information" data-toggle="modal" data-target="#more_information_' +
-                    i + '" onclick="show_chart(' + data.psp.monitors[i].id + ',' + i + ')"><a>' +
-                    data.psp.monitors[i].friendly_name +
+                    i + '" onclick="show_chart(' + data.psp.monitors[i].monitorId + ',' + i + ')"><a>' +
+                    data.psp.monitors[i].name +
                     '</a></td><td style="min-width:600px">' + last_seven_day_ratio + '</td></tr>');
 
 
@@ -239,29 +239,16 @@ function load(clear_table) {
                     $("#all_modal").html($("#all_modal").html() +
                         '<div class="modal fade" id="more_information_' + i +
                         '" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><h4 class="modal-title w-100" id="myModalLabel">' +
-                        data.psp.monitors[i].friendly_name +
+                        data.psp.monitors[i].name +
                         '</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div><div class="modal-body" id="more_information_body_' +
                         i + '">Loading...</div></div></div></div>');
                 }
                 var event_list = "";
-                for (var ii = 0; ii < data.psp.monitors[i].allLogs.length; ii++) {
-                    var if_or_not_start = 0;
-                    if (ii == 0) {
-                        if_or_not_start = 1;
-                    }
-                    event_list = "<tr><td>" + event_list_statusStr(data.psp.monitors[i].allLogs[ii].statusStr,
-                        if_or_not_start) + "</td><td>" + data.psp.monitors[i].allLogs[ii].dateTimeStr +
-                        "</td><td>" + event_list_reasonStr(data.psp.monitors[i].allLogs[ii].reasonStr,
-                        if_or_not_start, data.psp.monitors[i].allLogs[ii].statusStr) + "</td><td>" +
-                        event_list_durationStr(data.psp.monitors[
-                        i].allLogs[ii].durationStr) + "</td></tr>" + event_list;
-                }
                 $('#more_information_body_' + i).html("报告生成时间：" + time_text +
                     '&nbsp;&nbsp;<i class="fa fa-refresh" aria-hidden="true" style="font-size: 1rem;"></i>&nbsp;<span class="seconds">60s</span><div class="div_chart" id="div_chart_'+i+'"><div class="spinner" style="top:0px"><div class="double-bounce1"></div><div class="double-bounce2"></div></div></div><table class="table table-borderless table-sm" id="ratio_table"><thead><tr>' +
                     data_table +
                     '</tr></thead><tbody><tr>' + last_seven_day_ratio_html +
-                    '</tr></tbody></table><table class="table table-borderless table-sm"><thead><tr><th scope="col">事件</th><th scope="col">时间</th><th scope="col">原因</th><th scope="col">持续时间</th></tr></thead><tbody>' +
-                    event_list + '</tbody></table>');
+                    '</tr></tbody></table><table class="table table-borderless table-sm"><thead><tr><th scope="col">事件</th><th scope="col">时间</th><th scope="col">原因</th><th scope="col">持续时间</th></tr></thead><tbody id="logs_' + data.psp.monitors[i].monitorId + '"></tbody></table>');
                 if ($('#more_information_' + i).css("display")!=="none" && config_show_chart === true){
                     show_chart(data.psp.monitors[i].id, i);
                 }
@@ -285,9 +272,9 @@ function load(clear_table) {
                     var time_key = 30,
                         json_key = "l30";
                 }
-                $("#pass_" + time_key + "d").html("<strong>" + data.psp.pspStats.ratios[json_key].ratio +
+                $("#pass_" + time_key + "d").html("<strong>" + data.statistics.uptime[json_key].ratio +
                     "</strong>");
-                $("#pass_" + time_key + "d_td").addClass(data.psp.pspStats.ratios[json_key].label);
+                $("#pass_" + time_key + "d_td").addClass(data.statistics.uptime[json_key].label);
 
             }
 
