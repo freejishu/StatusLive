@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,5 +13,17 @@
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+    <script>
+    var config_title = "状态监控",//主标题
+      config_title_english = "StatusLive",//副标题（英文标题）
+      config_warning_flash = false,//warning区域是否添加特效（闪一下）
+      config_status_key = "KQLq0Cy2M";//你的statuspageskey
+      config_ajax_mode = 2;//ajax模式 1为依赖core.php模式 2为反代模式
+      config_ajax_proxy_domain = "https://uptimerobot-agent.freejishu.com/uptime"; //当config_ajax_mode设定为2时，在此填写反代域名（要有http(s)://，末尾不带斜杠）
+      config_show_chart = true;//是否展示图标
+      config_auto_refresh_seconds = 60;//数据刷新时间，单位为秒，建议不低于60
+    </script>
+
+
   </body>
 </html>

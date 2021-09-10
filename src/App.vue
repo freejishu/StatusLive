@@ -1,4 +1,4 @@
-<template >
+<template>
   <div id="app" style="">
 
     <!-- Nav -->
@@ -17,7 +17,7 @@
 }
 
 body{
-  background: #f5f5f5;
+  background: #eeeeee;
 }
 
 </style>

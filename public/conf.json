@@ -1,0 +1,12 @@
+{
+    "config_title": "状态监控", 
+    "config_title_english": "StatusLive",
+    "config_mode": 1,
+    "config_readonly_apikey": "ur609264-8262679743e293e750679dbe",
+    "config_proxy_domain": "https://api.uptimerobot.com/v2/getMonitors",
+    "config_ajax_mode": 1,
+    "config_warning_flash": false,
+
+    "config_show_chart": true,
+    "config_auto_refresh_seconds": 60
+}
