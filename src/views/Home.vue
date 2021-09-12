@@ -273,6 +273,7 @@ export default {
       counter: 1,
       refresh_timer: [],
       logs_list: [],
+      danger_times: 0,
     }
   },
   mounted:function(){
@@ -313,7 +314,7 @@ export default {
         // 1为直接请求uptimerobot
         link = "https://api.uptimerobot.com/v2/getMonitors";
       }else{
-        link = this.json.config_proxy_domain;
+        link = this.json.config_proxy_link;
       }
 
       //生成时间树
@@ -322,14 +323,9 @@ export default {
       uptime_ranges = (this.time_now-86400) + "_" + this.time_now ;
       if(this.json.config_history_time>0){
         for (let ii = 1; ii < this.json.config_history_time; ii++) {
-          uptime_ranges=uptime_ranges+"-"+(this.time_now-(60*60*24*(ii+1)))+"_"+(this.time_now-(60*60*24*ii));
-          
+          uptime_ranges=uptime_ranges+"-"+(this.time_now-(60*60*24*(ii+1)))+"_"+(this.time_now-(60*60*24*ii)); 
         }
-
       }
-      //console.log(uptime_ranges);
-      
-      
       this.$axios.post(link,{
         api_key : this.json.config_readonly_apikey,
         format  : "json",
@@ -340,13 +336,45 @@ export default {
         logs_start_date: this.time_now-86400*this.json.config_logs_history_days,
       }).then((response) => {
         if(response.data.stat != "ok"){
-          console.log("出现意外");
+          console.log("[StatusLive]UptimeRobot API有返回错误信息：");
+          console.log(response.data);
+          if(this.danger_times<3){
+            this.$notify.error({
+              title: '出现异常',
+              message: '请求参数异常，5秒后将会自动重试...',
+              type: 'danger'
+            });
+            this.danger_times++;
+            this.counter=5;
+            this.refresh_timer = setInterval(this.countdown_function, 1000);
+          }else{
+            this.$notify.error({
+              title: '出现异常',
+              message: '请求参数异常。连续三次连接服务器失败，请检查您的网络（或配置），并刷新页面重试。',
+            });
+          }
         }else{
           this.refresh_status(response.data);
         }
         
       }).catch((error) => {
-        console.log(error);
+          console.log("[StatusLive]链接UptimeRobot API时出现问题：");
+          console.log(error);
+          if(this.danger_times<3){
+            this.$notify.error({
+              title: '出现异常',
+              message: '链接服务器失败，5秒后将会自动重试...',
+              type: 'danger'
+            });
+            this.danger_times++;
+            this.counter=5;
+            this.refresh_timer = setInterval(this.countdown_function, 1000);
+          }else{
+            this.$notify.error({
+              title: '出现异常',
+              message: '链接服务器失败。连续三次连接服务器失败，请检查您的网络（或配置），并刷新页面重试。',
+            });
+          }
 
       });
 
@@ -389,7 +417,11 @@ export default {
         json_up.monitors[index].custom_uptime_ranges_a = [];
         custom_uptime_ranges_a = json_up.monitors[index].custom_uptime_ranges.split("-");
         for (let ia = 0; ia < custom_uptime_ranges_a.length; ia++) {
-          json_up.monitors[index].custom_uptime_ranges_a.push({ key: ia, range: custom_uptime_ranges_a[ia], info: (this.time_now-(60*60*24*(ia+1)) < json_up.monitors[index].create_datetime ? 1 : 0)});
+          json_up.monitors[index].custom_uptime_ranges_a.push({ 
+            key: ia, 
+            range: custom_uptime_ranges_a[ia], 
+            info: (this.time_now-(60*60*24*(ia+1)) < json_up.monitors[index].create_datetime ? 1 : 0)
+          });
         }
         //console.log(json_up.monitors[index]);
         if(json_up.monitors[index].type == 1){
@@ -403,29 +435,17 @@ export default {
         //处理日志
         var logs_one=[];
         for (let logs_i = 0; logs_i < json_up.monitors[index].logs.length; logs_i++) {
-          //logs_list_temp
-          //const element = array[logs_i];
-          //if(json_up.monitors[index].logs[logs_i].datetime - this.time_now-24*60*60*1 < 0){
-            logs_one = { 
-              name:json_up.monitors[index].friendly_name, 
-              datetime: String(json_up.monitors[index].logs[logs_i].datetime), 
-              duration: json_up.monitors[index].logs[logs_i].duration,
-              reason: json_up.monitors[index].logs[logs_i].reason,
-              type: Number(json_up.monitors[index].logs[logs_i].type),
-            };
-            logs_list_temp.push(logs_one);
-          //}
 
+          logs_one = { 
+            name:json_up.monitors[index].friendly_name, 
+            datetime: String(json_up.monitors[index].logs[logs_i].datetime), 
+            duration: json_up.monitors[index].logs[logs_i].duration,
+            reason: json_up.monitors[index].logs[logs_i].reason,
+            type: Number(json_up.monitors[index].logs[logs_i].type),
+          };
+          logs_list_temp.push(logs_one);
 
-
-          
-          
         }
-        //this.logs_list
-
-
-
-
       }
       //日志排序
       
@@ -461,6 +481,7 @@ export default {
       var m = (date.getMinutes() <10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
       var s = (date.getSeconds() <10 ? '0' + date.getSeconds() : date.getSeconds());
       this.time_text = Y+M+D+h+m+s;
+      this.danger_times = 0;
 
       this.table_loading = false;
       this.counter = this.json.config_auto_refresh_seconds;
@@ -550,7 +571,14 @@ export default {
       var s = duration % 60;
       var m = (duration-s) /60;
       var h = (duration-s-m*60)/60
-      return h+" 小时 "+m+" 分 "+s+" 秒";
+      if( h > 0){
+        //console.log(h);
+        return `${h} 小时 ${m} 分钟 ${s} 秒`;
+
+      }else{
+        return ` ${m} 分钟 ${s} 秒`;
+      }
+      
     }
 
 
