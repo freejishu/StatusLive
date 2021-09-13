@@ -2,13 +2,13 @@
     "config_title": "状态监控", 
     "config_title_english": "StatusLive",
 
-    "config_mode": 1,
-    "config_readonly_apikey": "ur609264-8262679743e293e750679dbe",
-    "config_proxy_link": "https://api.uptimerobot.com/v2/getMonitors",
+    "config_mode": 2,
+    "config_readonly_apikey": "xac",
+    "config_proxy_link": "https://statuslive-agent-pritive.vercel.app/v2.0/",
     "config_history_time": 60,
     "config_logs_history_days": 30,
 
     "config_success_min": 98,
     "config_warning_min": 90,
-    "config_auto_refresh_seconds": 20
+    "config_auto_refresh_seconds": 60
 }
