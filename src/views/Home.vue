@@ -404,12 +404,14 @@ export default {
         }
 
         //处理可用率
-        if(json_up.monitors[index].custom_uptime_ratio < this.json.config_success_min && json_up.monitors[index].status == 2){
+        if(json_up.monitors[index].status < 2){
+          json_up.monitors[index].custom_uptime_ratio_class = "info-color";
+        
+
+        }else if(json_up.monitors[index].custom_uptime_ratio < this.json.config_success_min && json_up.monitors[index].status == 2){
           json_up.monitors[index].custom_uptime_ratio_class = "warning-color";
         }else if(json_up.monitors[index].custom_uptime_ratio < this.json.config_warning_min || json_up.monitors[index].status >= 8){
           json_up.monitors[index].custom_uptime_ratio_class = "danger-color";
-        }else if(json_up.monitors[index].status < 2){
-          json_up.monitors[index].custom_uptime_ratio_class = "info-color";
         }else{
           json_up.monitors[index].custom_uptime_ratio_class = "success-color";
         }
@@ -531,9 +533,9 @@ export default {
       }else if(type == 2){
         return 'el-icon-check';
       }else if(type == 98){
-        return 'el-icon-video-pause ';
-      }else if(type == 99){
         return 'el-icon-video-play';
+      }else if(type == 99){
+        return 'el-icon-video-pause';
       }else{
         return 'el-icon-full-screen';
       }
@@ -559,9 +561,9 @@ export default {
       }else if(type == 2){
         return '恢复正常';
       }else if(type == 98){
-        return '开始维护（暂停监控）';
+        return '开始';
       }else if(type == 99){
-        return '开始监控';
+        return '开始维护（暂停监控）';
       }else{
         return '发生特情';
       }
