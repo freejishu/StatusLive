@@ -8,7 +8,7 @@
         &nbsp;&nbsp;
         <span style="font-size:1.7rem" id="title-small">{{this.main_title_eng}}</span>
       </h2>
-      <h4 class="title" style="margin-top:10px;">报告生成时间：<span>{{time_text}}</span>&nbsp;&nbsp;<span v-if="json.config_auto_refresh_seconds > 0"><i class="el-icon-refresh"></i>{{counter}}s</span></h4>
+      <h4 class="title" style="margin-top:10px;">报告生成时间：<span>{{time_text}}</span>&nbsp;&nbsp;<span v-if="json.config_auto_refresh_seconds > 0" ><i class="el-icon-refresh" v-bind:class="{ 'loading-icon': icon_loading }"></i>{{counter}}s</span></h4>
     </el-header>
     <el-main class="style-main" >
       <el-alert :title="alert_title" :type="alert_type" :description="alert_description" show-icon :closable="false" :center="false" style=" text-align: left;"></el-alert>
@@ -109,7 +109,7 @@
           <el-table-column :label="'详细可用率（过去'+json.config_history_time+'天）'" min-width="670">
             <template slot-scope="scope">
               <el-tooltip class="" effect="dark" :content="range.range" placement="top" v-for="range in scope.row.custom_uptime_ranges_a" :key="range.key" size="large" color="activity.color">
-                <span class="square" v-bind:class="[range.info ==1 ? 'info-bg' : (range.range > json.config_success_min ? 'success-bg' : (range.range > json.config_warning_min ? 'warning-bg' : 'danger-bg'))]"></span>
+                <span class="square" v-bind:class="[range.info == 1 ? 'info-bg' : (range.range > json.config_success_min ? 'success-bg' : (range.range > json.config_warning_min ? 'warning-bg' : 'danger-bg'))]"></span>
               </el-tooltip>
             </template>
           </el-table-column>
@@ -119,9 +119,22 @@
 
 
       <el-card v-loading="table_loading">
-        <h4 class="card-title">状态日志<span style="font-size:1rem">&nbsp;Logs</span></h4>
+        <el-row :gutter="5">
+          <el-col :xs="14" :sm="14" :md="14" :lg="14" :xl="14">
+            <h4 class="card-title">状态日志<span style="font-size:1rem">&nbsp;Logs</span></h4>
+          </el-col>
+          <el-col :xs="10" :sm="10" :md="10" :lg="10" :xl="10">
+            <div style="text-align: right;margin-top:8px;">
+              <el-radio-group v-model="reverse" >
+                <el-radio :label="true">倒序</el-radio>
+                <el-radio :label="false">正序</el-radio>
+              </el-radio-group>
+            </div>
+          </el-col>
+        </el-row>
         <br />
-        <el-timeline style="text-align: left;">
+        <el-empty description="加载中，请稍后..." v-if="table_loading"></el-empty>
+        <el-timeline style="text-align: left;" :reverse="reverse">
           <el-timeline-item v-for="(logs, index) in logs_list" :key="index" :timestamp="get_full_time(logs.datetime)" :icon="type_to_icon(logs.type)" :color="type_to_color(logs.type)">
           {{logs.name}} {{type_to_text(logs.type)}} - 具体信息：{{logs.reason.code}} - {{logs.reason.detail}}<span v-if="logs.type == 1"> - 持续 {{duration_to_text(logs.duration)}}</span>
           </el-timeline-item>
@@ -246,6 +259,10 @@
   margin: 0px 0px 10px 0px;
 
 }
+
+.loading-icon{
+  animation: rotating 2s linear infinite;
+}
 </style>
 
 <script>
@@ -265,6 +282,7 @@ export default {
       danger: 0,
       info: 0,
       table_loading: true,
+      icon_loading: true,
       time_now: 0,
       alert_type: "info",
       alert_title: "请稍等",
@@ -274,6 +292,7 @@ export default {
       refresh_timer: [],
       logs_list: [],
       danger_times: 0,
+      reverse: false,
     }
   },
   mounted:function(){
@@ -304,6 +323,7 @@ export default {
       this.alert_type = "info";
       this.alert_title = "请稍等";
       this.alert_description = "正在链接服务器加载数据...";
+      this.icon_loading = true; 
 
 
 
@@ -330,7 +350,7 @@ export default {
         api_key : this.json.config_readonly_apikey,
         format  : "json",
         logs  : 1,
-        custom_uptime_ratios: "1",
+        custom_uptime_ratios: "7",
         custom_uptime_ranges: uptime_ranges,
         custom_down_durations: 1,
         logs_start_date: this.time_now-86400*this.json.config_logs_history_days,
@@ -352,6 +372,8 @@ export default {
               title: '出现异常',
               message: '请求参数异常。连续三次连接服务器失败，请检查您的网络（或配置），并刷新页面重试。',
             });
+            this.icon_loading = false; 
+
           }
         }else{
           this.refresh_status(response.data);
@@ -369,11 +391,13 @@ export default {
             this.danger_times++;
             this.counter=5;
             this.refresh_timer = setInterval(this.countdown_function, 1000);
+            this.icon_loading = false; 
           }else{
             this.$notify.error({
               title: '出现异常',
               message: '链接服务器失败。连续三次连接服务器失败，请检查您的网络（或配置），并刷新页面重试。',
             });
+            this.icon_loading = false; 
           }
 
       });
@@ -406,8 +430,6 @@ export default {
         //处理可用率
         if(json_up.monitors[index].status < 2){
           json_up.monitors[index].custom_uptime_ratio_class = "info-color";
-        
-
         }else if(json_up.monitors[index].custom_uptime_ratio < this.json.config_success_min && json_up.monitors[index].status == 2){
           json_up.monitors[index].custom_uptime_ratio_class = "warning-color";
         }else if(json_up.monitors[index].custom_uptime_ratio < this.json.config_warning_min || json_up.monitors[index].status >= 8){
@@ -422,7 +444,7 @@ export default {
           json_up.monitors[index].custom_uptime_ranges_a.push({ 
             key: ia, 
             range: custom_uptime_ranges_a[ia], 
-            info: (this.time_now-(60*60*24*(ia+1)) < json_up.monitors[index].create_datetime ? 1 : 0)
+            info: (this.time_now-(60*60*24*ia) < json_up.monitors[index].create_datetime ? 1 : 0)
           });
         }
         //console.log(json_up.monitors[index]);
@@ -454,11 +476,9 @@ export default {
       logs_list_temp.sort(this.compare("datetime"));
       console.log(logs_list_temp);
       this.logs_list = logs_list_temp;
-      
-
-
-      console.log(this.datacenter_table);
-      console.log(this.website_table);
+    
+      //console.log(this.datacenter_table);
+      //console.log(this.website_table);
       //确定最终提示
       if(this.danger>0){
         if(this.danger>=this.success){
@@ -486,6 +506,7 @@ export default {
       this.danger_times = 0;
 
       this.table_loading = false;
+      this.icon_loading = false; 
       this.counter = this.json.config_auto_refresh_seconds;
       if(this.counter > 0){
         //0为不刷新
