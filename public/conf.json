@@ -3,8 +3,8 @@
     "config_title_english": "StatusLive",
 
     "config_mode": 2,
-    "config_readonly_apikey": "xac",
-    "config_proxy_link": "https://statuslive-agent-pritive.vercel.app/v2.0/",
+    "config_readonly_apikey": "USE_SERVER_APIKEY",
+    "config_proxy_link": "/core.php",
     "config_history_time": 60,
     "config_logs_history_days": 30,
 
