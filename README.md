@@ -86,7 +86,7 @@ https://status.freejishu.com/
 
     如果计划将 `core.php` 用于如 `Vercel` 等 Serverless Functions 平台，请注释掉 `core.php` 的第49行避免写入错误。
 
-    仍然计划提供一个供大家使用的反代，请期待后续版本。关于 `core.php` 的常见问题，请参照这里。
+    仍然计划提供一个供大家使用的反代，请期待后续版本。关于 `core.php` 的更多玩法和常见问题，请参照 [这里][2]。
 
 - `conf.json` 的其余字段根据上文提示填写即可。注意JSON文件不能存在`注释`。
 
@@ -125,3 +125,4 @@ MIT
 
 [1]: https://github.com/freejishu/StatusLive/releases/latest
 [2]: https://github.com/freejishu/StatusLive/blob/master/public/conf.json
+[3]: https://github.com/freejishu/StatusLive/discussions/3
