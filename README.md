@@ -42,9 +42,9 @@ https://status.freejishu.com/
         "config_auto_refresh_seconds": 60 //自动刷新时间，单位为秒，填写0为禁用自动刷新
     }
     ```
-- 公开模式
+- 公开模式（不推荐）
 
-    最简单、快速的开箱方式。系统会根据 `conf.json` 内的 `config_readonly_apikey` 直接请求 UptimeRobot API 接口。
+    最简单、快速的开箱方式。系统会根据 `conf.json` 内的 `config_readonly_apikey` 直接请求 UptimeRobot API 接口。此模式不需要 `core.php` 。
     
     `conf.json` 内应该如此填写：
     
@@ -54,8 +54,10 @@ https://status.freejishu.com/
     ```
 
     注意：一定要使用 `只读ApiKey (Read-Only API Key)` ！
+    
+    如果觉得直接请求 UptimeRobot API 接口速度有些差，您也可以使用下面的隐私模式反代以提高速度。
 
-- 隐私模式
+- 隐私模式（推荐）
 
     由于UptimeRobot API返回数据内包含 `url` 、 `http_username` 、 `http_password` 、 `port` 等字段，直接请求可能会导致真实域名、IP等泄露，故推荐使用隐私模式。
 
@@ -67,7 +69,20 @@ https://status.freejishu.com/
     "config_proxy_link": "/core.php",  //填写你的core.php路径
     ```
 
-    对反代文件 `core.php` ，您可以将其放到任意服务器上，只需做好 CORS 和在 `config_proxy_link` 中填写好地址即可。
+    对反代文件 `core.php` ，您需要先修改其中部分配置：
+    
+    ```
+    //在这里填入你的API_KEY，如果使用公开模式则置空避免key被更改。
+    $apikey = 'ur609264-xxxxxxxxxxxxxxxxxxxxxxxx';
+
+    //json缓存文件名，可自行配置
+    $file_name = 'uptime.json';
+
+    //缓存时间，单位为秒，因为UptimeRobotAPI免费用户调用限制为10次/分钟故不建议低于6
+    $cache_time = 10;
+    ```
+    
+    接下来您可以将其放到任意服务器上，只需做好 CORS 和在 `config_proxy_link` 中填写好地址即可。
 
     如果计划将 `core.php` 用于如 `Vercel` 等 Serverless Functions 平台，请注释掉 `core.php` 的第49行避免写入错误。
 
