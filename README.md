@@ -1,7 +1,6 @@
-# StatusLive &nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/freejishu/StatusLive/stargazers"><img src="https://img.shields.io/github/stars/freejishu/StatusLive?style=flat" alt="Stars"></a> <a href="https://github.com/freejishu/StatusLive/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/freejishu/StatusLive"></a>
+# StatusLive &nbsp;<a href="https://github.com/freejishu/StatusLive/stargazers"><img src="https://img.shields.io/github/stars/freejishu/StatusLive?style=flat" alt="Stars"></a> <a href="https://github.com/freejishu/StatusLive/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/freejishu/StatusLive"></a>
 
-<center>简洁 · 快速 · 轻便</center>
-<br />
+<p align="center"> 简洁 · 快速 · 轻便 </p>
 
 [![qhn.md.png](https://cdn-p.freejishu.com/img/2021/09/16/qhn.md.png)](https://img.freejishu.com/image/qhn)
 
@@ -14,14 +13,10 @@ StatusLive is a status page based on Uptimerobot. The data is based on Uptimerob
 注册一个 Uptimerobot 账户并添加监测点，即可搭建属于自己的、高可用的状态页面。
 
 Register an Uptimerobot account and add monitoring points to build your own status page. 
-<br /><br />
-
 
 ## Demo
 
 https://status.freejishu.com/
-<br />
-<br />
 
 ## How to use
 
@@ -82,9 +77,6 @@ https://status.freejishu.com/
 
 4. 上传到服务器，然后 Enjoy it！
 
-<br />
-
-
 ## Migration from v1.x
 
 v1.x 使用参照：https://www.freejishu.com/statuslive-for-you/
@@ -93,13 +85,9 @@ v1.x 使用参照：https://www.freejishu.com/statuslive-for-you/
 
 注：v2.x 通过切换分支的形式实现过渡，即原 master 分支被重命名为 v1.x，而 v2.x 重命名为 master ，并切换了一次默认分支。如果之前 fork 过项目，可能需要重新 fork 或进行同步操作才能继续操作。
 
-<br />
-
 ## Licenses
 
 MIT
-<br />
-<br />
 
 ## How to Rebuild
 
