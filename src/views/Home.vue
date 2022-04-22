@@ -274,7 +274,7 @@ export default {
   data:function(){
     return{
       main_title: "状态监控",
-      main_title_eng: "StausLive",
+      main_title_eng: "StatusLive",
       json: [],
       website_table: [],
       datacenter_table: [],
@@ -286,7 +286,7 @@ export default {
       time_now: 0,
       alert_type: "info",
       alert_title: "请稍等",
-      alert_description: "正在链接服务器加载数据...",
+      alert_description: "正在连接服务器加载数据...",
       time_text: "Loading...",
       counter: 1,
       refresh_timer: [],
@@ -322,7 +322,7 @@ export default {
     get_status(){
       this.alert_type = "info";
       this.alert_title = "请稍等";
-      this.alert_description = "正在链接服务器加载数据...";
+      this.alert_description = "正在连接服务器加载数据...";
       this.icon_loading = true; 
 
 
@@ -380,12 +380,12 @@ export default {
         }
         
       }).catch((error) => {
-          console.log("[StatusLive]链接UptimeRobot API时出现问题：");
+          console.log("[StatusLive]连接UptimeRobot API时出现问题：");
           console.log(error);
           if(this.danger_times<3){
             this.$notify.error({
               title: '出现异常',
-              message: '链接服务器失败，5秒后将会自动重试...',
+              message: '连接服务器失败，5秒后将会自动重试...',
               type: 'danger'
             });
             this.danger_times++;
@@ -395,7 +395,7 @@ export default {
           }else{
             this.$notify.error({
               title: '出现异常',
-              message: '链接服务器失败。连续三次连接服务器失败，请检查您的网络（或配置），并刷新页面重试。',
+              message: '连接服务器失败。连续三次连接服务器失败，请检查您的网络（或配置），并刷新页面重试。',
             });
             this.icon_loading = false; 
           }
