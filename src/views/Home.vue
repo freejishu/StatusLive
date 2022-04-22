@@ -142,7 +142,9 @@
       </el-card>      
     </el-main>
     <el-footer>
+      /*
       <el-button>默认按钮</el-button>
+      */
     </el-footer>
   </el-container>
 </template>
@@ -601,15 +603,7 @@ export default {
       }else{
         return ` ${m} 分钟 ${s} 秒`;
       }
-      
     }
-
-
-
-
-
-
   }
-
 }
 </script>
