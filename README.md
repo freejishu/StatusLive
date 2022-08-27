@@ -6,7 +6,7 @@
 
 ## What's StatusLive?
 
-StatusLive 是一个基于 Uptimerobot 的状态页，数据基于 Uptimerobot API 而来。
+StatusLive 是一个基于 Uptimerobot 的状态页，数据基于 Uptimerobot API 而来，开箱即用。
 
 StatusLive is a status page based on Uptimerobot. The data is based on Uptimerobot API.
 
@@ -86,7 +86,9 @@ https://status.freejishu.com/
 
     如果计划将 `core.php` 用于如 `Vercel` 等 Serverless Functions 平台，请注释掉 `core.php` 的第49行避免写入错误。
 
-    仍然计划提供一个供大家使用的反代，请期待后续版本。关于 `core.php` 的更多玩法和常见问题，请参照 [这里][2]。
+    如果懒得架设 `core.php` ，可以使用由开发者提供的公共反代。请参照 [StatusLive公共反代使用说明](https://github.com/freejishu/StatusLive/discussions/15) 。
+    
+    关于 `core.php` 的更多细节，请参照 [常见问题汇总（v2.0）](https://github.com/freejishu/StatusLive/discussions/3)。
 
 - `conf.json` 的其余字段根据上文提示填写即可。注意JSON文件不能存在`注释`。
 
