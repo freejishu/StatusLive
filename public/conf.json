@@ -4,11 +4,13 @@
 
     "config_mode": 2,
     "config_readonly_apikey": "USE_SERVER_APIKEY",
-    "config_proxy_link": "/core.php",
+    "config_proxy_link": "https://statuslive.freejishu.com/core/?publickey=4d5b7c03-8ddb-0093-6d77-5bff92c62d54",
     "config_history_time": 60,
     "config_logs_history_days": 30,
 
     "config_success_min": 98,
     "config_warning_min": 90,
-    "config_auto_refresh_seconds": 60
+    "config_auto_refresh_seconds": 60,
+
+    "logs_each_page": 10
 }

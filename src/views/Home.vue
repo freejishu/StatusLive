@@ -1,8 +1,6 @@
 <template>
-
   <el-container class="container-max">
     <el-header class="style-header">
-      
       <h2 class="title">
         <span class="title-big">{{this.main_title}}</span>
         &nbsp;&nbsp;
@@ -41,43 +39,50 @@
         </el-row>
         <!--<p>最后一次故障：</p>-->
       </el-card>
+      
+      <!-- 响应时间面板 -->
+
+      <el-dialog :title="response_title" :visible.sync="response_time_dialog" width="60%">
+        <el-alert :title="dialog.alert_title" :type="dialog.alert_type" :description="dialog.alert_description" show-icon :closable="false" :center="false" style="text-align: left;"></el-alert>
+        <v-chart class="chart" :option="option" :update-options="{notMerge: true}" :autoresize="true" v-if="dialog.chart_show"/>
+        <el-empty description="暂无响应时间数据" v-if="!dialog.chart_show"></el-empty>
+        
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="response_time_dialog = false">关闭</el-button>
+        </span>
+      </el-dialog>
 
       <el-card shadow="always" class="all-status-card" v-loading="table_loading">
         <!-- 数据中心 -->
         <h4 class="card-title">数据中心<span style="font-size:1rem">&nbsp;DataCenter</span></h4>
         
 
-        <el-table :data="this.datacenter_table" style="width: 100%;" >
+        <el-table :data="this.datacenter_table" style="width: 100%;" @cell-click="table_click">
           <el-table-column label="状态" width="50" min-width="40">
             <template slot-scope="scope">
-              <div v-html="scope.row.status_html"></div>
+              <div v-html="scope.row.status_html" @click="show_respontime(scope.row)"></div>
             </template>
           </el-table-column>
 
           <el-table-column label="可用率" width="90" min-width="70">
             <template slot-scope="scope">
-              <b><span v-bind:class="scope.row.custom_uptime_ratio_class">{{scope.row.custom_uptime_ratio}}%</span></b>
+              <b><span v-bind:class="scope.row.custom_uptime_ratio_class" @click="show_respontime(scope.row)">{{scope.row.custom_uptime_ratio}}%</span></b>
             </template>
           </el-table-column>
 
           <el-table-column label="名称" width="110" min-width="70">
             <template slot-scope="scope">
-              <b><div v-html="scope.row.friendly_name"></div></b>
+              <b><div v-html="scope.row.friendly_name"  @click="show_respontime(scope.row)"></div></b>
             </template>
           </el-table-column>
 
           <el-table-column :label="'详细可用率（过去'+json.config_history_time+'天）'" min-width="670">
             <template slot-scope="scope">
-              <el-tooltip class="" effect="dark" :content="range.range" placement="top" v-for="range in scope.row.custom_uptime_ranges_a" :key="range.key">
+              <el-tooltip class="" effect="dark" :content="range.time + ' ' + range.range + '%'" placement="top" v-for="range in scope.row.custom_uptime_ranges_a" :key="range.key">
                 <span class="square" v-bind:class="[range.info ==1 ? 'info-bg' : (range.range > json.config_success_min ? 'success-bg' : (range.range > json.config_warning_min ? 'warning-bg' : 'danger-bg'))]"></span>
               </el-tooltip>
             </template>
           </el-table-column>
-
-          
-
-
-
         </el-table>
       </el-card>
 
@@ -87,7 +92,7 @@
         <h4 class="card-title">网站<span style="font-size:1rem">&nbsp;WebSite</span></h4>
         
 
-        <el-table :data="this.website_table" style="width: 100%;" >
+        <el-table :data="this.website_table" style="width: 100%;" @cell-click="table_click">
           <el-table-column label="状态" width="50" min-width="40">
             <template slot-scope="scope">
               <div v-html="scope.row.status_html"></div>
@@ -102,21 +107,19 @@
 
           <el-table-column label="名称" width="110" min-width="70">
             <template slot-scope="scope">
-              <b><div v-html="scope.row.friendly_name"></div></b>
+              <b><div v-html="scope.row.friendly_name" @click="show_respontime(scope.row)"></div></b>
             </template>
           </el-table-column>
 
           <el-table-column :label="'详细可用率（过去'+json.config_history_time+'天）'" min-width="670">
             <template slot-scope="scope">
-              <el-tooltip class="" effect="dark" :content="range.range" placement="top" v-for="range in scope.row.custom_uptime_ranges_a" :key="range.key" size="large" color="activity.color">
+              <el-tooltip class="" effect="dark" :content="range.time + ' ' + range.range + '%'" placement="top" v-for="range in scope.row.custom_uptime_ranges_a" :key="range.key" size="large" color="activity.color">
                 <span class="square" v-bind:class="[range.info == 1 ? 'info-bg' : (range.range > json.config_success_min ? 'success-bg' : (range.range > json.config_warning_min ? 'warning-bg' : 'danger-bg'))]"></span>
               </el-tooltip>
             </template>
           </el-table-column>
         </el-table>
       </el-card>
-
-
 
       <el-card v-loading="table_loading">
         <el-row :gutter="5">
@@ -125,26 +128,40 @@
           </el-col>
           <el-col :xs="10" :sm="10" :md="10" :lg="10" :xl="10">
             <div style="text-align: right;margin-top:8px;">
-              <el-radio-group v-model="reverse" >
-                <el-radio :label="true">倒序</el-radio>
-                <el-radio :label="false">正序</el-radio>
-              </el-radio-group>
+              <el-switch
+                v-model="reverse"
+                @change="pages_change()"
+                active-text="倒序"
+                inactive-text="正序">
+              </el-switch>
             </div>
           </el-col>
         </el-row>
         <br />
         <el-empty description="加载中，请稍后..." v-if="table_loading"></el-empty>
-        <el-timeline style="text-align: left;" :reverse="reverse">
-          <el-timeline-item v-for="(logs, index) in logs_list" :key="index" :timestamp="get_full_time(logs.datetime)" :icon="type_to_icon(logs.type)" :color="type_to_color(logs.type)">
+        <el-timeline style="text-align: left;" >
+          <el-timeline-item v-for="(logs, index) in logs_list_inpage" :key="index" :timestamp="get_full_time(logs.datetime)" :icon="type_to_icon(logs.type)" :color="type_to_color(logs.type)">
           {{logs.name}} {{type_to_text(logs.type)}} - 具体信息：{{logs.reason.code}} - {{logs.reason.detail}}<span v-if="logs.type == 1"> - 持续 {{duration_to_text(logs.duration)}}</span>
           </el-timeline-item>
         </el-timeline>
+        <center>
+          <el-pagination
+            layout="prev, pager, next"
+            :total="logs_list.length"
+            @current-change="pages_change"
+            :current-page.sync="logs_now_page"
+            :page-size="json.logs_each_page ? json.logs_each_page : 10"
+          >
+          </el-pagination>
+        </center>
+       
+        
       </el-card>      
     </el-main>
     <el-footer>
-      /*
-      <el-button>默认按钮</el-button>
-      */
+      
+      <!--<el-button>默认按钮</el-button>-->
+      
     </el-footer>
   </el-container>
 </template>
@@ -173,6 +190,7 @@
 
 .style-main{
   margin-top: 25px;
+  overflow-x:hidden;
 }
 
 @media (max-width: 479px) {
@@ -265,14 +283,36 @@
 .loading-icon{
   animation: rotating 2s linear infinite;
 }
+
+.chart {
+  height: 400px;
+}
 </style>
 
 <script>
 // @ is an alias to /src
+import { use } from "echarts/core";
+import { SVGRenderer } from "echarts/renderers";
+import { LineChart } from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent
+} from "echarts/components";
+import VChart from "vue-echarts";
+
+use([
+  SVGRenderer,
+  TooltipComponent,
+  GridComponent,
+  LineChart
+]);
 
 
 export default {
   name: 'Index',
+  components: {
+    VChart
+  },
   data:function(){
     return{
       main_title: "状态监控",
@@ -292,9 +332,22 @@ export default {
       time_text: "Loading...",
       counter: 1,
       refresh_timer: [],
-      logs_list: [],
+      logs_list: [], //完整日志列表
+      logs_list_inpage: [],  //当前页日志列表
+      logs_now_page: 1, //当前页面
+      logs_page_total: -1, //总计页数
+      logs_each_page: 10, //每页几条
       danger_times: 0,
-      reverse: false,
+      reverse: true, //false正序 true倒序
+      response_time_dialog: false,
+      option : {},
+      response_title: '响应时间',
+      dialog: { 
+        alert_title:'状态加载中……',
+        alert_type:'success',
+        alert_description:'Loading……',
+        chart_show : true,
+      }
     }
   },
   mounted:function(){
@@ -356,6 +409,8 @@ export default {
         custom_uptime_ranges: uptime_ranges,
         custom_down_durations: 1,
         logs_start_date: this.time_now-86400*this.json.config_logs_history_days,
+        response_times: 1,
+        response_times_average : 5
       }).then((response) => {
         if(response.data.stat != "ok"){
           console.log("[StatusLive]UptimeRobot API有返回错误信息：");
@@ -446,7 +501,8 @@ export default {
           json_up.monitors[index].custom_uptime_ranges_a.push({ 
             key: ia, 
             range: custom_uptime_ranges_a[ia], 
-            info: (this.time_now-(60*60*24*ia) < json_up.monitors[index].create_datetime ? 1 : 0)
+            info: (this.time_now-(60*60*24*ia) < json_up.monitors[index].create_datetime ? 1 : 0),
+            time: this.get_time_ymd(this.time_now-(60*60*24*ia))
           });
         }
         //console.log(json_up.monitors[index]);
@@ -473,10 +529,9 @@ export default {
 
         }
       }
+
       //日志排序
-      
-      logs_list_temp.sort(this.compare("datetime"));
-      console.log(logs_list_temp);
+      logs_list_temp.sort(function(a, b){return parseInt(a.datetime) - parseInt (b.datetime)});
       this.logs_list = logs_list_temp;
     
       //console.log(this.datacenter_table);
@@ -515,28 +570,16 @@ export default {
         this.refresh_timer = setInterval(this.countdown_function, 1000);
 
       }
-      
-
-
-
+      this.pages_change();
     },
     countdown_function(){
       //定时刷新
       this.counter--;
-      console.log(this.counter);
       if(this.counter==0){
         //启动刷新 销毁前一个定时器
         clearInterval(this.refresh_timer);
         this.counter = this.json.config_auto_refresh_seconds;
         this.get_status();
-      }
-    },
-    compare(p){
-      //比较函数
-      return function(m,n){
-          var a = m[p];
-          var b = n[p];
-          return b - a; 
       }
     },
     get_full_time(time){
@@ -548,6 +591,13 @@ export default {
       var m = (date.getMinutes() <10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
       var s = (date.getSeconds() <10 ? '0' + date.getSeconds() : date.getSeconds());
       return Y+M+D+h+m+s;
+    },
+    get_time_ymd(time){
+      var date = new Date(time*1000);
+      var Y = date.getFullYear() + '-';
+      var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+      var D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate());
+      return Y+M+D;
     },
     type_to_icon(type){
       type=Number(type);
@@ -603,6 +653,119 @@ export default {
       }else{
         return ` ${m} 分钟 ${s} 秒`;
       }
+    },
+    pages_change(){
+
+      let logs_list_temp_change = JSON.parse(JSON.stringify(this.logs_list)) ; //解决浅拷贝问题 默认正序
+      if(this.reverse){
+        //倒序 翻转
+        logs_list_temp_change.reverse();
+      }
+      this.logs_each_page  = this.json.logs_each_page;
+      this.logs_page_total = Math.ceil(logs_list_temp_change.length / this.logs_each_page ); //计算页数总计
+      
+      if(this.logs_now_page > this.logs_page_total){
+        this.logs_now_page = 1; //如果超出现有页数 回第一页
+      }
+      this.logs_list_inpage = [];//数组置空
+      
+      for (let page_index = 0; page_index < this.logs_each_page; page_index++) {
+        if(this.logs_each_page*(this.logs_now_page-1)+page_index < logs_list_temp_change.length){
+          this.logs_list_inpage.push(logs_list_temp_change[this.logs_each_page*(this.logs_now_page-1)+page_index]);
+        }
+      }
+    },
+    show_respontime(t){
+      //let lastLogTypeBeforeStartDate = t.lastLogTypeBeforeStartDate;
+      let response_times = t.response_times;
+      console.log(t);
+      let data = [];
+      let time = [];
+      for (let resp_index = 0; resp_index < response_times.length; resp_index++) {
+        data.push(this.get_full_time(response_times[resp_index].datetime));
+        time.push(response_times[resp_index].value > 1 ? response_times[resp_index].value : '-' );
+        
+      }
+      //console.log(data);
+      //console.log(time);
+      //this.option.xAxis.data = data;
+      //this.option.series.data = time;
+      this.response_title = t.friendly_name + ' 详细信息'
+
+      if(t.status < 2){
+        this.dialog.alert_title = t.friendly_name+' 监控因故暂停，监控期平均在线率为 '+t.custom_uptime_ratio+'% ，最近一次探测响应时间：'+time[0]+' ms';
+        this.dialog.alert_type = 'info';
+      }else if(t.custom_uptime_ratio < this.json.config_success_min && t.status == 2){
+        this.dialog.alert_title = t.friendly_name+' 当前状态正常，在线率为 '+t.custom_uptime_ratio+'% ，最近一次探测响应时间：'+time[0]+' ms';
+        this.dialog.alert_type = 'warning';
+      }else if(t.custom_uptime_ratio < this.json.config_warning_min || t.status >= 8){
+        this.dialog.alert_title = t.friendly_name+' 当前状态'+(t.status >= 8 ? '异常' : '正常')+'，在线率为 '+t.custom_uptime_ratio+'% ，最近一次探测响应时间：'+time[0]+' ms';
+        this.dialog.alert_type = 'danger';
+      }else{
+        this.dialog.alert_title = t.friendly_name+' 当前状态正常，在线率为 '+t.custom_uptime_ratio+'% ，最近一次探测响应时间：'+time[0]+' ms';
+        this.dialog.alert_type = 'success';
+        /* */
+      }
+      this.dialog.alert_title = t.friendly_name+' '+( t.status < 2 ? ' 监控因故暂停，近期平均在线率为 ' :'当前状态'+(t.status >= 8 ? '异常' : '正常') +'，在线率为 ') + t.custom_uptime_ratio+'% ，' + ( time[0]  ?  '最近一次探测响应时间：'+time[0]+' ms' : '暂无最近探测响应时间数据'  ) + "。";
+      
+      this.dialog.alert_description = '最近动态：'+this.get_full_time(t.lastLogTypeBeforeStartDate.datetime)+' - '+this.type_to_text(t.lastLogTypeBeforeStartDate.type) +' - 具体信息：'+t.lastLogTypeBeforeStartDate.reason.code + ' - ' +t.lastLogTypeBeforeStartDate.reason.detail +  (t.lastLogTypeBeforeStartDate.type == 1 ? ' - 持续' +this.duration_to_text(t.lastLogTypeBeforeStartDate.duration) : '');
+
+      if(!time[0]){
+        this.dialog.chart_show = false;
+
+      }else{
+        this.dialog.chart_show = true;
+      }
+
+
+
+      
+      /*
+      dialog: { 
+        alert_title:'状态加载中……',
+        alert_type:'success',
+        alert_description:'Loading……',
+      }
+      */
+
+
+      this.response_time_dialog = true;
+      this.option = {
+
+        xAxis: {
+          type: 'category',
+          data: data.reverse()
+        },
+        tooltip: {
+          trigger: 'axis',
+        },
+        grid: {
+          show: true
+        },
+        yAxis: {
+          type: 'value',
+          name: 'ResponseTime(ms)',
+        },
+        series: [
+          {
+            data: time.reverse(),
+            type: 'line',
+            smooth: true,
+            connectNulls: true,
+            symbol: "none",
+            endLabel: {
+              show: true
+            }
+          }
+        ]
+      }
+      //console.log(this.option.series.data);
+      
+
+    },
+    table_click(a){
+      this.show_respontime(a);
+
     }
   }
 }
