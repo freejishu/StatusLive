@@ -2,7 +2,7 @@
 
 <p align="center"> 简洁 · 快速 · 轻便 </p>
 
-[![qhn.md.png](https://cdn-p.freejishu.com/img/2021/09/16/qhn.md.png)](https://img.freejishu.com/image/qhn)
+![qhn.webp](https://s2.loli.net/2022/10/31/N4sCi7YDIZ8XxST.webp)
 
 ## What's StatusLive?
 
@@ -39,7 +39,9 @@ https://status.freejishu.com/
 
         "config_success_min": 98, //合格(success)等级标准，低于此数字为警告(warning)等级
         "config_warning_min": 90, //警告(warning)等级标准，低于此数字为危险(danger)等级
-        "config_auto_refresh_seconds": 60 //自动刷新时间，单位为秒，填写0为禁用自动刷新
+        "config_auto_refresh_seconds": 60, //自动刷新时间，单位为秒，填写0为禁用自动刷新
+
+        "logs_each_page": 10  //每页展示日志行数
     }
     ```
 - 公开模式（不推荐）
@@ -53,13 +55,13 @@ https://status.freejishu.com/
     "config_readonly_apikey": "ur609264-xxxxxxxxxxxxxxxxxxxxxxxx",
     ```
 
-    注意：一定要使用 `只读ApiKey (Read-Only API Key)` ！
+    注意：一定要使用 `只读ApiKey (Read-Only API Key)`，非只读ApiKey的泄露会导致其他人使用官方 API 操纵账户！
     
-    如果觉得直接请求 UptimeRobot API 接口速度有些差，您也可以使用下面的隐私模式反代以提高速度。
+    如果觉得直接请求 UptimeRobot API 接口速度有些差，或不想暴露部分关键字段，您也可以使用下面的隐私模式反代以提高速度。
 
 - 隐私模式（推荐）
 
-    由于UptimeRobot API返回数据内包含 `url` 、 `http_username` 、 `http_password` 、 `port` 等字段，直接请求可能会导致真实域名、IP等泄露，故推荐使用隐私模式。
+    由于UptimeRobot API返回数据内包含 `url` 、 `http_username` 、 `http_password` 、 `port` 等字段，直接请求可能会导致真实域名、IP等泄露；同时针对免费账户，UptimeRobot 的 API 存在 QPS 限制，故推荐使用隐私模式，可隐去关键字段并针对性缓存。
 
     `conf.json` 内应该如此填写：
 
