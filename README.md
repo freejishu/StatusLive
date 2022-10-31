@@ -41,7 +41,7 @@ https://status.freejishu.com/
         "config_warning_min": 90, //警告(warning)等级标准，低于此数字为危险(danger)等级
         "config_auto_refresh_seconds": 60, //自动刷新时间，单位为秒，填写0为禁用自动刷新
 
-        "logs_each_page": 10  //每页展示日志行数
+        "logs_each_page": 10  //日志模块每页展示行数
     }
     ```
 - 公开模式（不推荐）
