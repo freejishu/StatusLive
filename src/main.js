@@ -3,13 +3,17 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'element-ui/lib/theme-chalk/display.css';
 import axios from 'axios';
+
 import App from './App.vue';
 import router from './router';
+
 
 Vue.config.productionTip = false;
 
 Vue.prototype.$axios = axios;
 //axios.defaults.baseURL = '/v2';
+
+
 
 Vue.use(ElementUI);
 router.beforeEach((to, from, next) => {

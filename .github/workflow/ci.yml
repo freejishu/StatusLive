@@ -1,0 +1,30 @@
+name: Status-Vercel
+
+on:
+  push:
+    branches: [ "master" , "freejishu-dev" ]
+  pull_request:
+    branches: [ "master" , "freejishu-dev" ]
+
+jobs:
+  ci:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+      env:
+        CI: true
+    - name: install yarn 
+      run: npm install yarn -g
+    - name: yarn 
+      run: yarn
+    - name: yarn build
+      run: yarn build
