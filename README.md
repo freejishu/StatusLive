@@ -24,7 +24,7 @@ https://status.freejishu.com/
 
 2. ⭐Star 一下，然后从 [Releases][1] 下载最新版本并解压。
 
-3. 配置配置文件 [conf.json][2]
+3. 复制 `conf.example.conf` 到 `conf.json` ，并配置配置文件 [conf.json][2]
     ```
     {
         "config_title": "状态监控",      //页面标题
@@ -41,7 +41,7 @@ https://status.freejishu.com/
         "config_warning_min": 90, //警告(warning)等级标准，低于此数字为危险(danger)等级
         "config_auto_refresh_seconds": 60, //自动刷新时间，单位为秒，填写0为禁用自动刷新
 
-        "logs_each_page": 10  //日志模块每页展示行数
+        "logs_each_page": 10  //日志模块每页展示行数，v2.1新增，作用于日志查看区
     }
     ```
 - 公开模式（不推荐）
