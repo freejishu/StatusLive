@@ -71,7 +71,7 @@ https://status.freejishu.com/
     "config_proxy_link": "/core.php",  //填写你的core.php路径
     ```
 
-    对反代文件 `core.php` ，您需要先修改其中部分配置：
+    本程序自带一个php的反代文件。对反代文件 `core.example.php` ，您需要先复制到 `core.php` （当然其他名字也可以，`config.json` 中的 `config_proxy_link` 字段需同步更新），再修改 `core.php` 的部分配置：
     
     ```
     //在这里填入你的API_KEY，如果使用公开模式则置空避免key被更改。
