@@ -4,6 +4,29 @@ const cache_time = 10;//缓存时间（秒）
 
 const url = 'https://api.uptimerobot.com/v2/getMonitors';
 
+export async function onRequestPost({ request, env }) {
+    if (request.method === 'OPTIONS') {
+        return await new Response(null, {
+            status: 200,
+            statusText: 'OK',
+            headers: {
+                'content-type': 'application/json;charset=UTF-8',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Expose-Headers': '*'
+            }
+        })
+    } else if (request.method === 'POST') {
+        return await handleRequest(request);
+    } else {
+        return await new Response(null, {
+            status: 405,
+            statusText: 'Method Not Allowed',
+        })
+    }
+}
 
 async function gatherResponse(response) {
     const { headers } = response;
@@ -85,40 +108,3 @@ async function handleRequest(request) {
     return new Response(results, response_init);
 }
 
-addEventListener('fetch', event => {
-    const request = event.request;
-    const url = new URL(request.url);
-
-    if (url.pathname === "/api") {
-        if (request.method === 'OPTIONS') {
-            event.respondWith(
-                new Response(null, {
-                    status: 200,
-                    statusText: 'OK',
-                    headers: {
-                        'content-type': 'application/json;charset=UTF-8',
-                        'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Methods': '*',
-                        'Access-Control-Allow-Credentials': 'true',
-                        'Access-Control-Allow-Headers': 'Content-Type',
-                        'Access-Control-Expose-Headers': '*'
-                    }
-                })
-            );
-        } else if (request.method === 'POST') {
-            event.respondWith(handleRequest(request));
-        } else {
-            event.respondWith(
-                new Response(null, {
-                    status: 405,
-                    statusText: 'Method Not Allowed',
-                })
-            );
-        }
-    }else{
-        return fetch(request.url);
-    }
-
-
-
-});
