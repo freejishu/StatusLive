@@ -114,7 +114,7 @@
           <el-table-column :label="'详细可用率（过去'+json.config_history_time+'天）'" min-width="670">
             <template slot-scope="scope">
               <el-tooltip class="" effect="dark" :content="range.time + ' ' + range.range + '%'" placement="top" v-for="range in scope.row.custom_uptime_ranges_a" :key="range.key" size="large" color="activity.color">
-                <span class="square" v-bind:class="[range.info == 1 ? 'info-bg' : (range.range > json.config_success_min ? 'success-bg' : (range.range > json.config_warning_min ? 'warning-bg' : 'danger-bg'))]"></span>
+                <span class="square" :class="[range.info == 1 ? 'info-bg' : (range.range > json.config_success_min ? 'success-bg ' : (range.range > json.config_warning_min ? 'warning-bg' : 'danger-bg'))]"></span>
               </el-tooltip>
             </template>
           </el-table-column>
@@ -363,13 +363,50 @@ export default {
   },
   methods:{
     get_conf_json(){
-      this.$axios.get("./conf.json")
-      .then((response) => {
-        this.main_title = response.data.config_title;
-        this.main_title_eng = response.data.config_title_english;
-        this.json=response.data;
+      //自检
+      if(process.env.VUE_APP_use_env){
+        //使用环境变量
+        console.log("[StatusLive]使用环境变量模式");
+        this.main_title = process.env.VUE_APP_config_title;
+        this.main_title_eng = process.env.VUE_APP_config_title_english;
+        this.json = {
+          config_title : process.env.VUE_APP_config_title ? process.env.VUE_APP_config_title : "状态监控", 
+          config_title_english : process.env.VUE_APP_config_title_english ? process.env.VUE_APP_config_title_english : "StatusLive",
+
+          config_mode: process.env.VUE_APP_config_mode ? process.env.VUE_APP_config_mode : 2,
+          config_readonly_apikey: process.env.VUE_APP_config_readonly_apikey ? process.env.VUE_APP_config_readonly_apikey : "USE_SERVER_APIKEY",
+          config_proxy_link: process.env.VUE_APP_config_proxy_link ? process.env.VUE_APP_config_proxy_link : "/core.php",
+          config_history_time: process.env.VUE_APP_config_history_time ? process.env.VUE_APP_config_history_time : 60,
+          config_logs_history_days: process.env.VUE_APP_config_logs_history_days ? process.env.VUE_APP_config_logs_history_days : 30,
+
+          config_success_min: parseFloat(process.env.VUE_APP_config_success_min ? process.env.VUE_APP_config_success_min : 98) ,
+          config_warning_min: parseFloat(process.env.VUE_APP_config_warning_min ? process.env.VUE_APP_config_warning_min : 90) ,
+          config_auto_refresh_seconds: process.env.VUE_APP_config_auto_refresh_seconds ? process.env.VUE_APP_config_auto_refresh_seconds : 60,
+
+          logs_each_page: parseInt(process.env.VUE_APP_logs_each_page) ? parseInt(process.env.VUE_APP_logs_each_page) : 10
+        };
         this.get_status();
+      }else{
+        console.log("[StatusLive]使用conf.json模式");
+        this.$axios.get("./conf.json")
+        .then((response) => {
+          this.main_title = response.data.config_title;
+          this.main_title_eng = response.data.config_title_english;
+          this.json=response.data;
+          this.get_status();
+        })
+        .catch((error) => {
+          console.log("[StatusLive]配置项载入失败了，检查一下配置项吧:(");
+          console.log(error);
+          this.$notify.error({
+            title: '出现异常',
+            message: '连接服务器失败，请刷新页面尝试恢复。',
+            type: 'danger'
+          });
+
       });
+      }
+
 
 
     },
@@ -531,7 +568,7 @@ export default {
       }
 
       //日志排序
-      logs_list_temp.sort(function(a, b){return parseInt(a.datetime) - parseInt (b.datetime)});
+      logs_list_temp.sort(function(a, b){return parseInt(a.datetime) - parseInt(b.datetime)});
       this.logs_list = logs_list_temp;
     
       //console.log(this.datacenter_table);
