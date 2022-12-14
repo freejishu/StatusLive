@@ -367,7 +367,7 @@ export default {
       if(process.env.VUE_APP_use_env){
         //使用环境变量
         console.log("[StatusLive]使用环境变量模式");
-        this.main_title = process.env.VUE_APP_config_title;
+        this.main_title = process.env.VUE_APP_config_title ? process.env.VUE_APP_config_title : "状态监控";
         this.main_title_eng = process.env.VUE_APP_config_title_english;
         this.json = {
           config_title : process.env.VUE_APP_config_title ? process.env.VUE_APP_config_title : "状态监控", 
@@ -385,14 +385,16 @@ export default {
 
           logs_each_page: parseInt(process.env.VUE_APP_logs_each_page) ? parseInt(process.env.VUE_APP_logs_each_page) : 10
         };
+        this.main_title = this.json.config_title;
+        this.main_title_eng = this.json.config_title_english;
         this.get_status();
       }else{
         console.log("[StatusLive]使用conf.json模式");
         this.$axios.get("./conf.json")
         .then((response) => {
-          this.main_title = response.data.config_title;
-          this.main_title_eng = response.data.config_title_english;
           this.json=response.data;
+          this.main_title = this.json.config_title;
+          this.main_title_eng = this.json.config_title_english;
           this.get_status();
         })
         .catch((error) => {
