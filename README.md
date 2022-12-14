@@ -98,11 +98,11 @@ https://status.freejishu.com/
 
 - 更多打开方式：
     
-    1. `conf.json` 可以被环境变量替代。若您部署到类似 Cloudflare Pages 或 Vercel 此类平台时，可通过填写环境变量生成 `.env` 文件。当检测到环境变量存在时，无需再修改或部署 `conf.json`，程序将根据环境变量启动。详见这篇指南。
+    1. `conf.json` 可以被环境变量替代。若您部署到类似 Cloudflare Pages 或 Vercel 此类平台时，可通过填写环境变量生成 `.env` 文件。当检测到环境变量存在时，无需再修改或部署 `conf.json`，程序将根据环境变量启动。详见：[如何部署 StatusLive 到静态资源平台？](https://github.com/freejishu/StatusLive/discussions/30)。
 
     2. 隐私模式需要用到的 `core.php` 可以有多种部署方式，如：
-        - 可以使用 Cloudflare Worker 替代，详见[这篇指南](https://github.com/freejishu/StatusLive/discussions/28)。
-        - 如果计划将 `core.php` 用于如 `Vercel` 等 Serverless Functions 平台，请注释掉 `core.php` 的第49行避免写入错误。
+        - 可以使用 Cloudflare Worker 替代，详见：[使用 Cloudflare Workers 替代 Core.php 实现反代](https://github.com/freejishu/StatusLive/discussions/28)。
+        - 如果计划将 `core.php` 用于如 `Vercel` 等 Serverless Functions 平台，请注释掉 `core.php` 的[第49行](https://github.com/freejishu/StatusLive/blob/67ebdce931332255f06dc0635aa0d88aa589999d/public/core.example.php#L49)避免写入错误。
         - 如果懒得架设 `core.php` ，可以使用由开发者提供的公共反代。请参照 [StatusLive公共反代使用说明](https://github.com/freejishu/StatusLive/discussions/15) 。
         - 关于 `core.php` 的更多细节，请参照 [常见问题汇总（v2.0）](https://github.com/freejishu/StatusLive/discussions/3)。
 
