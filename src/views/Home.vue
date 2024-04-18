@@ -354,6 +354,7 @@ export default {
       json: [],
       website_table: [],
       datacenter_table: [],
+      service_table: [],
       success: 0,
       danger: 0,
       info: 0,
@@ -544,6 +545,7 @@ export default {
       this.info = 0;
       this.website_table=[];
       this.datacenter_table=[];
+      this.service_table=[];
       for (let index = 0; index < json_up.monitors.length; index++) {
         //当前状态
         if(json_up.monitors[index].status < 2){
