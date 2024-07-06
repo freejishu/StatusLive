@@ -2,9 +2,9 @@ name: Status-Vercel
 
 on:
   push:
-    branches: [ "master" , "freejishu-dev" ]
+    branches: [ "master" , "freejishu-dev", "cloudflare-try" ]
   pull_request:
-    branches: [ "master" , "freejishu-dev" ]
+    branches: [ "master" , "freejishu-dev", "cloudflare-try" ]
 
 jobs:
   ci:
